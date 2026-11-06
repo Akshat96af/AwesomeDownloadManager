@@ -1,14 +1,62 @@
-# Ignore Gradle project-specific cache directory
-.gradle
-.kotlin
+# Only source, build scripts, resources and docs belong in this repository.
 
-# Ignore Gradle build output directory
-build
-.idea
+# --- Build output and caches -------------------------------------------------
+.gradle/
+.kotlin/
+build/
+out/
+*.class
+*.log
+hs_err_pid*
+replay_pid*
+
+# --- Release artifacts (publish them under GitHub Releases, not in the repo) -
+*.zip
+*.7z
+*.rar
+*.exe
+*.msi
+*.dmg
+*.deb
+*.rpm
+*.AppImage
+*.crx
+*.xpi
+*.jar
+# the Gradle wrapper is needed to build
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- IDEs and editors ---------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.vs/
+.fleet/
+*.swp
+*~
+
+# --- Operating system files --------------------------------------------------
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# --- Local machine settings ----------------------------------------------------
 local.properties
+.env
+.env.*
 
-# Ignore android keystores
+# --- Secrets: signing keys and keystores must never be public ---------------
+# (the extension's public key lives in browser-extension/manifest.json)
+*.pem
+*.key
+*.p12
+*.pfx
 *.jks
+*.keystore
 
-# extension signing key: only the public part goes in manifest.json
-browser-extension/key.pem
+# --- Tooling installed per machine ---------------------------------------------
+node_modules/
