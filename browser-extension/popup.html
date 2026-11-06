@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Absolute Download Manager</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon.png" alt="" width="28" height="28">
+    <div>
+      <h1>Absolute Download Manager</h1>
+      <p id="status" class="status">Checking connection…</p>
+    </div>
+  </header>
+
+  <button id="page-video" class="primary" type="button">
+    <span class="dot" aria-hidden="true">↓</span>
+    <span><strong>Download video on this page</strong><small>Best quality, video and audio</small></span>
+  </button>
+
+  <label class="toggle">
+    <span><strong>Capture browser downloads</strong><small>Send new downloads to the app</small></span>
+    <input id="capture" type="checkbox" role="switch">
+  </label>
+
+  <section>
+    <h2>Detected on this page</h2>
+    <ul id="media"></ul>
+    <p id="empty" class="hint">Play a video to detect its streams.</p>
+  </section>
+
+  <p id="message" class="hint" role="status" aria-live="polite"></p>
+  <script src="popup.js"></script>
+</body>
+</html>
