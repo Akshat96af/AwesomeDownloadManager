@@ -1,4 +1,4 @@
-package com.abdownloadmanager.desktop.utils.ytdlp
+package com.abdownloadmanager.desktop.utils.media
 
 import com.abdownloadmanager.desktop.repository.AppRepository
 import com.abdownloadmanager.desktop.utils.ExternalTools
@@ -33,6 +33,7 @@ private data class MergeJob(val videoId: Long, val audioId: Long)
 
 /**
  * Downloads a video stream and an audio stream as two normal downloads, then merges them with ffmpeg.
+ * Also starts single-stream media (audio only) straight away, so all picks from the browser behave the same.
  *
  * The video download carries the final file name, so it is the entry the user sees in the list.
  * When both are complete the merged file replaces the video file and the audio download is removed.
@@ -73,6 +74,11 @@ class MediaMergeService(
             description = "$videoName will be merged automatically when both parts finish.".asStringSource(),
             type = NotificationType.Info,
         )
+    }
+
+    suspend fun start(media: ResolvedMedia.Single) {
+        val id = addDownload(media.credentials, appRepository.saveLocation.value, FilenameFixer.fix(media.fileName))
+        downloadSystem.userManualResume(id)
     }
 
     /** Called for every finished download; does nothing unless the download belongs to a pending pair. */

@@ -3,6 +3,8 @@ package com.abdownloadmanager.desktop.pages.addDownload.shared
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
+import com.abdownloadmanager.shared.util.ui.motion.Motion
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -171,8 +173,8 @@ fun <T> DropDownContent(
                 AnimatedVisibility(
                     visible = listState.canScrollForward,
                     modifier = Modifier.matchParentSize(),
-                    enter = fadeIn(),
-                    exit = fadeOut(),
+                    enter = fadeIn(tween(Motion.SHORT, easing = Motion.Standard)),
+                    exit = fadeOut(tween(Motion.SHORT - 60, easing = Motion.Standard)),
                 ) {
                     Spacer(
                         Modifier

@@ -1,8 +1,6 @@
 package com.abdownloadmanager.desktop.pages.perhostsettings
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import com.abdownloadmanager.shared.ui.configurable.ConfigurableGroup
 import com.abdownloadmanager.shared.ui.configurable.RenderConfigurableGroup
 import com.abdownloadmanager.shared.util.ui.icon.MyIcons
@@ -38,6 +36,9 @@ import ir.amirab.util.compose.asStringSource
 import ir.amirab.util.compose.resources.myStringResource
 import ir.amirab.util.ifThen
 import kotlinx.coroutines.*
+import androidx.compose.ui.graphics.TransformOrigin
+import com.abdownloadmanager.shared.util.ui.motion.growIn
+import com.abdownloadmanager.shared.util.ui.motion.growOut
 
 @Composable
 fun PerHostSettingsPage(component: DesktopPerHostSettingsComponent) {
@@ -293,8 +294,8 @@ private fun SideBarItem(
             isSelected,
             modifier = Modifier
                 .align(Alignment.CenterStart),
-            enter = scaleIn(),
-            exit = scaleOut(),
+            enter = growIn(TransformOrigin(0f, 0.5f)),
+            exit = growOut(TransformOrigin(0f, 0.5f)),
         ) {
             Spacer(
                 Modifier

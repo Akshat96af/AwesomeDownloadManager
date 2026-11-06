@@ -2,7 +2,7 @@ package com.abdownloadmanager.desktop.actions.onevennts
 
 import com.abdownloadmanager.desktop.PowerActionManager
 import com.abdownloadmanager.desktop.storage.AppSettingsStorage
-import com.abdownloadmanager.desktop.utils.ytdlp.MediaMergeService
+import com.abdownloadmanager.desktop.utils.media.MediaMergeService
 import com.abdownloadmanager.shared.pagemanager.NotificationSender
 import com.abdownloadmanager.shared.ui.widget.NotificationType
 import ir.amirab.util.compose.asStringSource
@@ -104,7 +104,7 @@ class DefenderScanOnDownloadFinish(
     }
 }
 
-/** Merges a downloaded video and audio stream once both parts of a yt-dlp pair have finished. */
+/** Merges a downloaded video and audio stream once both parts of a pair have finished. */
 class MergeOnDownloadFinish(
     private val mediaMergeService: MediaMergeService,
 ) : OnDownloadCompletionAction {

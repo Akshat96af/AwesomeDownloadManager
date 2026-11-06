@@ -2,9 +2,12 @@ package com.abdownloadmanager.desktop.integration
 
 import com.abdownloadmanager.desktop.AppComponent
 import com.abdownloadmanager.desktop.repository.AppRepository
-import com.abdownloadmanager.desktop.utils.ytdlp.MediaMergeService
-import com.abdownloadmanager.desktop.utils.ytdlp.ResolvedMedia
-import com.abdownloadmanager.desktop.utils.ytdlp.YtDlpResolver
+import com.abdownloadmanager.desktop.utils.media.MediaMergeService
+import com.abdownloadmanager.desktop.utils.media.ResolvedMedia
+import com.abdownloadmanager.desktop.utils.youtube.StoredYouTubeFormat
+import com.abdownloadmanager.desktop.utils.youtube.StoredYouTubeSession
+import com.abdownloadmanager.desktop.utils.youtube.YouTubeSabrInterceptor
+import com.abdownloadmanager.desktop.utils.youtube.YouTubeSessionStore
 import com.abdownloadmanager.integration.IntegrationHandler
 import com.abdownloadmanager.integration.model.*
 import com.abdownloadmanager.shared.downloaderinui.BasicDownloadItem
@@ -29,12 +32,13 @@ class IntegrationHandlerImp : IntegrationHandler, KoinComponent {
     val appSettings by inject<AppRepository>()
     private val downloaderInUiRegistry by inject<DownloaderInUiRegistry>()
     private val mediaMergeService by inject<MediaMergeService>()
+    private val youTubeSessions by inject<YouTubeSessionStore>()
 
     override suspend fun addDownloadByGui(
         request: AddDownloadsFromIntegration
     ) {
-        val (pages, list) = request.items.partition { it is PageDownloadCredentialsFromIntegration }
-        pages.forEach { addPage(it.link) }
+        val (videos, list) = request.items.partition { it is YouTubeDownloadCredentialsFromIntegration }
+        videos.forEach { addYouTube(it as YouTubeDownloadCredentialsFromIntegration) }
         if (list.isEmpty()) return
         val options = request.options
         appComponent.externalCredentialComingIntoApp(
@@ -52,24 +56,34 @@ class IntegrationHandlerImp : IntegrationHandler, KoinComponent {
     }
 
     /**
-     * "Download this video" from the browser: the same yt-dlp path as pasting a page link,
-     * so separate HD video and audio streams are downloaded and merged.
-     * Throwing here reaches the extension as an error message it can show.
+     * A quality picked in the browser's YouTube menu. The captured player session is stored, and each track
+     * becomes a normal download of a URL that YouTubeSabrInterceptor serves by streaming that track,
+     * so video and audio download side by side and are merged by ffmpeg like any other pair.
      */
-    private suspend fun addPage(pageUrl: String) {
-        when (val media = YtDlpResolver.resolve(pageUrl)) {
-            is ResolvedMedia.Single -> appComponent.externalCredentialComingIntoApp(
-                listOf(
-                    AddDownloadCredentialsInUiProps(
-                        credentials = media.credentials,
-                        extraConfig = AddDownloadCredentialsInUiProps.Configs(suggestedName = media.fileName),
-                    )
-                ),
-                options = ImportOptions(),
+    private suspend fun addYouTube(item: YouTubeDownloadCredentialsFromIntegration) {
+        fun format(f: YouTubeFormatFromIntegration) = StoredYouTubeFormat(f.itag, f.lastModified, f.xtags, f.mimeType)
+        require(item.container in setOf("mp4", "mkv", "m4a", "webm")) { "Unknown container ${item.container}" }
+        val key = youTubeSessions.save(
+            StoredYouTubeSession(
+                videoId = item.videoId,
+                streamingUrl = item.streamingUrl,
+                requestBody = item.requestBody,
+                ustreamerConfig = item.ustreamerConfig,
+                userAgent = item.userAgent,
+                video = item.video?.let(::format),
+                audio = format(item.audio),
             )
-
-            is ResolvedMedia.Merge -> mediaMergeService.start(media)
-            null -> error("No downloadable video was found on this page.")
+        )
+        fun track(name: String) = HttpDownloadCredentials(
+            link = YouTubeSabrInterceptor.trackUrl(key, name, item.videoId),
+            downloadPage = item.downloadPage ?: item.link,
+        )
+        val fileName = "${item.suggestedName ?: item.videoId}.${item.container}"
+        if (item.video != null) {
+            val audioExtension = if (item.audio.mimeType.startsWith("audio/mp4")) "m4a" else "webm"
+            mediaMergeService.start(ResolvedMedia.Merge(track("video"), track("audio"), audioExtension, fileName))
+        } else {
+            mediaMergeService.start(ResolvedMedia.Single(track("audio"), fileName))
         }
     }
 
@@ -136,8 +150,8 @@ class IntegrationHandlerImp : IntegrationHandler, KoinComponent {
                     )
                 }
 
-                is PageDownloadCredentialsFromIntegration ->
-                    error("A page link has to be resolved with yt-dlp first; it is not a file")
+                is YouTubeDownloadCredentialsFromIntegration ->
+                    error("A YouTube video is added through the browser's YouTube menu")
             }
             return AddDownloadCredentialsInUiProps(
                 credentials = credentials,

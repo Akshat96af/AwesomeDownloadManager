@@ -8,10 +8,6 @@ import ir.amirab.util.ifThen
 import com.abdownloadmanager.shared.util.div
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -30,6 +26,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 @Composable
 fun RadioButton(
@@ -72,14 +70,11 @@ fun RadioButton(
         )
         AnimatedContent(
             value,
-            transitionSpec = {
-                val tween = tween<Float>(220)
-                fadeIn(tween) togetherWith fadeOut(tween)
-            }
+            transitionSpec = togglePopSpec(),
         ) {
             val m = Modifier
                 .fillMaxSize()
-                .alpha(animateFloatAsState(if (value) 1f else 0f).value)
+                .alpha(animateFloatAsState(if (value) 1f else 0f, motionSpec(Motion.snappy())).value)
                 .padding(4.dp)
                 .clip(shape)
                 .background(myColors.primaryGradient)

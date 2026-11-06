@@ -2,6 +2,11 @@ package com.abdownloadmanager.desktop.pages.editdownload
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.crossSlideSpec
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
+import com.abdownloadmanager.shared.util.ui.motion.popIn
+import com.abdownloadmanager.shared.util.ui.motion.popOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +19,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
@@ -202,11 +208,16 @@ fun BrowserImportButton(
                     vertical = 6.dp,
                     horizontal = animateDpAsState(
                         if (credentialsImportedFromExternal) 8.dp
-                        else 16.dp
+                        else 16.dp,
+                        motionSpec(Motion.smooth()),
                     ).value,
                 ),
                 end = {
-                    AnimatedVisibility(credentialsImportedFromExternal) {
+                    AnimatedVisibility(
+                        credentialsImportedFromExternal,
+                        enter = popIn(TransformOrigin.Center),
+                        exit = popOut(TransformOrigin.Center),
+                    ) {
                         Row {
                             Spacer(Modifier.width(8.dp))
                             MyIcon(
@@ -242,6 +253,8 @@ private fun RenderResumeSupport(
         val canEditDownload by editDownloadUiChecker.canEdit.collectAsState()
         AnimatedVisibility(
             visible = canEditDownload && fileInfo != null,
+            enter = popIn(TransformOrigin.Center),
+            exit = popOut(TransformOrigin.Center),
         ) {
             fileInfo?.let { fileInfo ->
                 if (fileInfo.resumeSupport) {
@@ -460,9 +473,7 @@ private fun RenderFileTypeAndSize(
     Box(Modifier.padding(top = 16.dp)) {
         AnimatedContent(
             targetState = isLinkLoading,
-            transitionSpec = {
-                fadeIn() togetherWith fadeOut()
-            }
+            transitionSpec = crossSlideSpec()
         ) { loading ->
             if (loading) {
                 LoadingIndicator(iconModifier)
@@ -470,6 +481,7 @@ private fun RenderFileTypeAndSize(
                 val icon = iconProvider.rememberIcon(editDownloadUiChecker.name.collectAsState().value)
                 AnimatedContent(
                     fileInfo,
+                    transitionSpec = crossSlideSpec(),
                 ) { fileInfo ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

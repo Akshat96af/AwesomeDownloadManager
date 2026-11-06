@@ -40,6 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.takeOrElse
 import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import com.abdownloadmanager.shared.util.ui.theme.mySpacings
+import androidx.compose.animation.core.tween
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 @Composable
 fun MyTextField(
@@ -99,7 +102,8 @@ fun MyTextField(
                 1.dp,
                 animateColorAsState(
                     if (isFocused) focusedBorderColor
-                    else borderColor
+                    else borderColor,
+                    motionSpec(tween(Motion.SHORT, easing = Motion.Standard)),
                 ).value,
                 shape
             )
@@ -137,8 +141,8 @@ fun MyTextField(
                     androidx.compose.animation.AnimatedVisibility(
                         text.isEmpty(),
 //                modifier = Modifier.matchParentSize(),
-                        enter = fadeIn(),
-                        exit = fadeOut(),
+                        enter = fadeIn(tween(Motion.SHORT, easing = Motion.EmphasizedDecelerate)),
+                        exit = fadeOut(tween(90, easing = Motion.EmphasizedAccelerate)),
                     ) {
                         Text(
                             text = placeholder,

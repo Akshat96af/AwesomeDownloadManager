@@ -157,16 +157,12 @@
   }
 
   async function openMenu() {
-    menu.replaceChildren(row({
-      title: 'Best quality',
-      detail: 'Video and audio in the highest resolution the site offers',
-      best: true,
-      onPick: () => ({action: 'downloadPage', pageUrl: location.href, title: document.title}),
-    }));
+    menu.replaceChildren();
     menu.hidden = false;
     requestAnimationFrame(() => menu.classList.add('open'));
     pill.setAttribute('aria-expanded', 'true');
     try {
+      if (isYouTube()) return await youtubeMenu();
       const reply = await api.runtime.sendMessage({action: 'choices'});
       for (const media of reply?.media || []) {
         let name = '';
@@ -178,9 +174,84 @@
           onPick: () => ({action: 'downloadMedia', url: media.url, pageUrl: location.href}),
         }));
       }
+      if (!menu.querySelector('.row')) note('No video found yet. Play it, then open this menu again.');
     } catch (error) {
       if (/context invalidated/i.test(error?.message || '')) note('The extension was updated. Reload this page.', true);
+      else note(error?.message || 'Something went wrong.', true);
     }
+  }
+
+  // ---------- YouTube: one row per quality, like a download manager's "Download this video" list ----------
+
+  function isYouTube() {
+    return /(^|\.)youtube\.com$/.test(location.hostname) && (location.pathname === '/watch' || location.pathname.startsWith('/shorts/'));
+  }
+
+  /** Asks youtube-page.js (running in the page's own context) for the player's format list. */
+  function playerData() {
+    return new Promise(resolve => {
+      const nonce = crypto.randomUUID();
+      const done = data => { removeEventListener('message', onMessage); clearTimeout(timer); resolve(data); };
+      const onMessage = event => {
+        if (event.source === window && event.data?.admYouTube === 'player' && event.data.nonce === nonce) done(event.data.data);
+      };
+      const timer = setTimeout(() => done(null), 1500);
+      addEventListener('message', onMessage);
+      window.postMessage({admYouTube: 'request', nonce}, location.origin);
+    });
+  }
+
+  /**
+   * One choice per quality (height + frame rate). H.264 is preferred because every player opens it as MP4;
+   * VP9 needs MKV; AV1 comes last. The audio is the original-language AAC track (Opus if there is none).
+   */
+  function youtubeChoices(formats) {
+    const usable = formats.filter(f => !f.hasDrm && f.contentLength > 0);
+    const byBitrate = (a, b) => b.bitrate - a.bitrate;
+    const audios = usable.filter(f => f.mimeType.startsWith('audio/') && !f.isDrc && f.audioDefault);
+    const audio = audios.filter(f => f.mimeType.startsWith('audio/mp4')).sort(byBitrate)[0] || audios.sort(byBitrate)[0];
+    if (!audio) return [];
+    const audioIsMp4 = audio.mimeType.startsWith('audio/mp4');
+    const codecRank = f => /avc1/.test(f.mimeType) ? 3 : /vp0?9/.test(f.mimeType) ? 2 : 1;
+    const best = new Map();
+    for (const f of usable) {
+      const height = parseInt(f.qualityLabel, 10);
+      if (!f.mimeType.startsWith('video/') || !height) continue;
+      const key = `${height}/${f.fps > 30 ? 60 : 30}`;
+      const old = best.get(key);
+      if (!old || codecRank(f) > codecRank(old) || (codecRank(f) === codecRank(old) && f.bitrate > old.bitrate)) best.set(key, f);
+    }
+    const videos = [...best.values()].sort((a, b) => parseInt(b.qualityLabel, 10) - parseInt(a.qualityLabel, 10) || b.fps - a.fps);
+    const choices = videos.map(video => {
+      const height = parseInt(video.qualityLabel, 10);
+      const container = video.mimeType.startsWith('video/mp4') && audioIsMp4 ? 'mp4' : 'mkv';
+      const label = `${container.toUpperCase()} file, quality ${height}p${height >= 720 ? ' HD' : ''}${video.fps > 30 ? ` ${video.fps} fps` : ''}`;
+      return {label, video, audio, container, size: video.contentLength + audio.contentLength};
+    });
+    const audioExt = audioIsMp4 ? 'm4a' : 'webm';
+    choices.push({label: `${audioExt.toUpperCase()} audio file, ${Math.round(audio.bitrate / 1000)} kbps`, video: null, audio, container: audioExt, size: audio.contentLength});
+    return choices;
+  }
+
+  async function youtubeMenu() {
+    const player = await playerData();
+    if (!player) return note('Start playing the video, then open this menu again.');
+    if (player.isLive) return note('Live streams cannot be downloaded yet.');
+    const choices = youtubeChoices(player.formats);
+    if (!choices.length) return note('This video has no downloadable formats (it may be protected).');
+    const send = picks => ({action: 'downloadYouTube', player, picks: picks.map(({video, audio, container}) => ({video, audio, container}))});
+    menu.appendChild(row({
+      title: 'Download all',
+      detail: `${choices.length} files`,
+      side: size(choices.reduce((sum, c) => sum + c.size, 0)),
+      onPick: () => send(choices),
+    }));
+    choices.forEach((choice, index) => menu.appendChild(row({
+      title: `${index + 1}. ${player.title}`,
+      detail: choice.label,
+      side: size(choice.size),
+      onPick: () => send([choice]),
+    })));
   }
 
   // "Download all links on this page" from the context menu

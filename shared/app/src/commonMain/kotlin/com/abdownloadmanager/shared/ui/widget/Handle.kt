@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import com.abdownloadmanager.shared.ui.modifier.MyPointerHoverIcon
 import com.abdownloadmanager.shared.ui.modifier.myPointerHoverIcon
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 @Composable
 fun Handle(
@@ -56,7 +58,8 @@ fun Handle(
             .background(
                 animateColorAsState(
                     if (isHovered || isDragging) color
-                    else inactiveColor
+                    else inactiveColor,
+                    motionSpec(Motion.snappy()),
                 ).value
             )
     )

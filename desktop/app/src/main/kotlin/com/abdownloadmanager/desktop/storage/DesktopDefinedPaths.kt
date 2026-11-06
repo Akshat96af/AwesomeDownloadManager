@@ -20,4 +20,7 @@ class DesktopDefinedPaths(
 
     // video + audio download pairs waiting to be merged by ffmpeg
     val mergeJobsFile: Path = systemDir.resolve("merge-jobs.json")
+
+    // YouTube player sessions captured by the browser extension, one file per picked quality
+    val youtubeSessionsDir: Path = systemDir.resolve("youtube-sessions")
 }

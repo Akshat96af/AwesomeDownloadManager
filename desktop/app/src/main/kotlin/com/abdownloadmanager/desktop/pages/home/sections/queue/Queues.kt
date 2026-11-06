@@ -8,8 +8,6 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -69,6 +67,11 @@ import ir.amirab.util.compose.action.MenuItem
 import ir.amirab.util.compose.asStringSource
 import ir.amirab.util.compose.resources.myStringResource
 import ir.amirab.util.ifThen
+import com.abdownloadmanager.shared.util.ui.motion.growIn
+import com.abdownloadmanager.shared.util.ui.motion.growOut
+import androidx.compose.ui.graphics.TransformOrigin
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 @Composable
 internal fun QueuesSection(
@@ -276,7 +279,8 @@ private fun QueueFilterItem(
                         myColors.success
                     } else {
                         LocalContentColor.current / LocalContentAlpha.current
-                    }
+                    },
+                    motionSpec(Motion.snappy()),
                 ).value
                 Text(
                     text = "${queueModel.queueItems.size}",
@@ -288,8 +292,8 @@ private fun QueueFilterItem(
         AnimatedVisibility(
             isSelected,
             modifier = Modifier.align(Alignment.CenterStart),
-            enter = scaleIn(),
-            exit = scaleOut(),
+            enter = growIn(TransformOrigin(0f, 0.5f)),
+            exit = growOut(TransformOrigin(0f, 0.5f)),
         ) {
             Spacer(
                 Modifier

@@ -73,6 +73,8 @@ import ir.amirab.util.compose.asStringSource
 import ir.amirab.util.compose.resources.myStringResource
 import ir.amirab.util.desktop.DesktopUtils
 import ir.amirab.util.ifThen
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 object ProxyConfigurableRenderer : ConfigurableRenderer<ProxyConfigurable> {
     @Composable
@@ -243,7 +245,8 @@ object ProxyConfigurableRenderer : ConfigurableRenderer<ProxyConfigurable> {
                                             .padding(8.dp)
                                             .padding(
                                                 animateDpAsState(
-                                                    if (selected) 4.dp else 0.dp
+                                                    if (selected) 4.dp else 0.dp,
+                                                    motionSpec(Motion.smooth()),
                                                 ).value
                                             )
                                     ) {

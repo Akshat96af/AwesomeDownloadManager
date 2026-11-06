@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import ir.amirab.util.ifThen
+import com.abdownloadmanager.shared.util.ui.motion.conceal
+import com.abdownloadmanager.shared.util.ui.motion.reveal
 
 @Composable
 fun RenderConfigurableGroup(
@@ -65,7 +67,7 @@ fun RenderConfigurableGroup(
 
             )
         }
-        AnimatedVisibility(visible) {
+        AnimatedVisibility(visible, enter = reveal(), exit = conceal()) {
             Column(
                 Modifier
                     .ifThen(group.mainConfigurable != null) {

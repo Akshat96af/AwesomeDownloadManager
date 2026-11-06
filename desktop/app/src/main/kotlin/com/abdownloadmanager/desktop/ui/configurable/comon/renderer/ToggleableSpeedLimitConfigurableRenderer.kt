@@ -32,6 +32,8 @@ import ir.amirab.util.datasize.SizeFactors
 import ir.amirab.util.datasize.SizeUnit
 import ir.amirab.util.datasize.SizeWithUnit
 import ir.amirab.util.datasize.asConverterConfig
+import com.abdownloadmanager.shared.util.ui.motion.conceal
+import com.abdownloadmanager.shared.util.ui.motion.reveal
 
 object ToggleableSpeedLimitConfigurableRenderer : ConfigurableRenderer<ToggleableSpeedLimitConfigurable> {
     @Composable
@@ -92,7 +94,11 @@ object ToggleableSpeedLimitConfigurableRenderer : ConfigurableRenderer<Toggleabl
             },
             nestedContent = {
                 Column(Modifier.align(Alignment.End)) {
-                    AnimatedVisibility(hasLimitSpeed) {
+                    AnimatedVisibility(
+                        hasLimitSpeed,
+                        enter = reveal(),
+                        exit = conceal(),
+                    ) {
                         Row(
                             Modifier
                                 .padding(vertical = 8.dp)

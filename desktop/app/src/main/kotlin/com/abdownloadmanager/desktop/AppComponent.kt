@@ -79,8 +79,6 @@ import ir.amirab.util.osfileutil.FileUtils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
-import com.abdownloadmanager.desktop.utils.ytdlp.MediaMergeService
-import com.abdownloadmanager.desktop.utils.ytdlp.ResolvedMedia
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.system.exitProcess
@@ -118,7 +116,6 @@ class AppComponent(
     val appRepository: AppRepository by inject()
     val appSettings: AppSettingsStorage by inject()
     val downloaderInUiRegistry: DownloaderInUiRegistry by inject()
-    private val mediaMergeService: MediaMergeService by inject()
     private val queueManager: QueueManager by inject()
     private val defaultCategories: DefaultCategories by inject()
     private val integration: Integration by inject()
@@ -1199,21 +1196,13 @@ class AppComponent(
                         )
                     }
                 },
-                onMediaResolved = { media ->
-                    scope.launch {
-                        when (media) {
-                            is ResolvedMedia.Single -> openAddDownloadDialog(
-                                links = listOf(
-                                    AddDownloadCredentialsInUiProps(
-                                        credentials = media.credentials,
-                                        extraConfig = AddDownloadCredentialsInUiProps.Configs(suggestedName = media.fileName),
-                                    )
-                                ),
-                            )
-                            // video and audio are added straight away; the merge needs no per-file choices
-                            is ResolvedMedia.Merge -> mediaMergeService.start(media)
-                        }
-                    }
+                onYouTubePageLink = {
+                    sendDialogNotification(
+                        title = "Download it from the browser".asStringSource(),
+                        description = ("YouTube streams its videos to the page that plays them. Open the video in your browser, " +
+                                "point at the player and use the \"Download video\" button to pick a quality.").asStringSource(),
+                        type = MessageDialogType.Info,
+                    )
                 },
             )
         }

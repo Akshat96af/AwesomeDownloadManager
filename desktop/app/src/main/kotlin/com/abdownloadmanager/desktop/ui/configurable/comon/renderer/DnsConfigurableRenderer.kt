@@ -30,6 +30,8 @@ import com.abdownloadmanager.shared.util.ui.theme.myTextSizes
 import com.abdownloadmanager.shared.util.ui.widget.MyIcon
 import ir.amirab.util.compose.resources.myStringResource
 import ir.amirab.util.ifThen
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 object DnsConfigurableRenderer : ConfigurableRenderer<DnsConfigurable> {
     @Composable
@@ -161,7 +163,8 @@ object DnsConfigurableRenderer : ConfigurableRenderer<DnsConfigurable> {
                                             .padding(8.dp)
                                             .padding(
                                                 animateDpAsState(
-                                                    if (selected) 4.dp else 0.dp
+                                                    if (selected) 4.dp else 0.dp,
+                                                    motionSpec(Motion.smooth()),
                                                 ).value
                                             )
                                     ) {

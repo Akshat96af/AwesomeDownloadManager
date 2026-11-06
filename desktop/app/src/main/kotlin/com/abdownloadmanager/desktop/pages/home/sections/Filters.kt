@@ -25,6 +25,11 @@ import com.abdownloadmanager.shared.ui.widget.MyTextFieldWithIcons
 import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import com.abdownloadmanager.shared.util.ui.theme.mySpacings
 import ir.amirab.util.compose.resources.myStringResource
+import androidx.compose.ui.graphics.TransformOrigin
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
+import com.abdownloadmanager.shared.util.ui.motion.popIn
+import com.abdownloadmanager.shared.util.ui.motion.popOut
 
 @Composable
 fun SearchBox(
@@ -46,7 +51,7 @@ fun SearchBox(
         interactionSource = interactionSource,
         start = {
             WithContentAlpha(
-                animateFloatAsState(if (text.isBlank()) 0.9f else 1f).value
+                animateFloatAsState(if (text.isBlank()) 0.9f else 1f, motionSpec(Motion.snappy())).value
             ) {
                 MyIcon(
                     MyIcons.search,
@@ -58,7 +63,11 @@ fun SearchBox(
             }
         },
         end = {
-            AnimatedVisibility(text.isNotBlank()) {
+            AnimatedVisibility(
+                text.isNotBlank(),
+                enter = popIn(TransformOrigin.Center),
+                exit = popOut(TransformOrigin.Center),
+            ) {
                 MyTextFieldIcon(
                     icon = MyIcons.clear,
                     enabled = true,

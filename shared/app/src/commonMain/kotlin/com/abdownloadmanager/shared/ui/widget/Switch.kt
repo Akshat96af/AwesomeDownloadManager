@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 @Composable
 fun Switch(
@@ -59,13 +61,14 @@ fun Switch(
                 .align(
                     BiasAlignment(
                         animateFloatAsState(
-                            if (checked) 1f else -1f
+                            if (checked) 1f else -1f,
+                            motionSpec(Motion.lively()),
                         ).value,
                         0f,
                     )
                 )
                 .clip(CircleShape)
-                .background(myColors.onPrimaryGradient / animateFloatAsState(if (checked) 1f else 0.5f).value)
+                .background(myColors.onPrimaryGradient / animateFloatAsState(if (checked) 1f else 0.5f, motionSpec(Motion.snappy())).value)
         )
     }
 }

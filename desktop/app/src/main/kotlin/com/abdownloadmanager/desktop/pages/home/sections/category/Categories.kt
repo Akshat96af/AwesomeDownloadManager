@@ -53,6 +53,11 @@ import ir.amirab.util.compose.resources.myStringResource
 import ir.amirab.util.ifThen
 import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableListItemScope
+import androidx.compose.ui.graphics.TransformOrigin
+import com.abdownloadmanager.shared.util.ui.motion.growIn
+import com.abdownloadmanager.shared.util.ui.motion.growOut
+import com.abdownloadmanager.shared.util.ui.motion.popIn
+import com.abdownloadmanager.shared.util.ui.motion.popOut
 
 
 @Composable
@@ -128,6 +133,8 @@ private fun ReorderableListItemScope.CategoryFilterItem(
                 )
                 AnimatedVisibility(
                     visible = shouldShowDragIcon,
+                    enter = popIn(TransformOrigin.Center),
+                    exit = popOut(TransformOrigin.Center),
                 ) {
                     MyIcon(
                         MyIcons.grip,
@@ -149,8 +156,8 @@ private fun ReorderableListItemScope.CategoryFilterItem(
         AnimatedVisibility(
             isSelected,
             modifier = Modifier.align(Alignment.CenterStart),
-            enter = scaleIn(),
-            exit = scaleOut(),
+            enter = growIn(TransformOrigin(0f, 0.5f)),
+            exit = growOut(TransformOrigin(0f, 0.5f)),
         ) {
             Spacer(
                 Modifier
@@ -251,8 +258,8 @@ fun StatusFilterItem(
                 AnimatedVisibility(
                     isSelected,
                     modifier = Modifier.align(Alignment.CenterStart),
-                    enter = scaleIn(),
-                    exit = scaleOut(),
+                    enter = growIn(TransformOrigin(0f, 0.5f)),
+                    exit = growOut(TransformOrigin(0f, 0.5f)),
                 ) {
                     Spacer(
                         Modifier
@@ -304,4 +311,3 @@ fun StatusFilterItem(
         }
     )
 }
-

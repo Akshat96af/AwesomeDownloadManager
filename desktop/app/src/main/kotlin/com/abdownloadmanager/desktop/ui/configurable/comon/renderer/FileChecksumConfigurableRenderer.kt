@@ -26,6 +26,8 @@ import com.abdownloadmanager.shared.ui.widget.Text
 import com.abdownloadmanager.shared.util.FileChecksum
 import com.abdownloadmanager.shared.util.FileChecksumAlgorithm
 import ir.amirab.util.compose.resources.myStringResource
+import com.abdownloadmanager.shared.util.ui.motion.conceal
+import com.abdownloadmanager.shared.util.ui.motion.reveal
 
 object FileChecksumConfigurableRenderer : ConfigurableRenderer<FileChecksumConfigurable> {
     @Composable
@@ -51,6 +53,8 @@ object FileChecksumConfigurableRenderer : ConfigurableRenderer<FileChecksumConfi
                 Column(Modifier.align(Alignment.End)) {
                     AnimatedVisibility(
                         hasFileChecksum,
+                        enter = reveal(),
+                        exit = conceal(),
                     ) {
                         value?.let { value ->
                             Row(

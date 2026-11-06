@@ -1,6 +1,9 @@
 package com.abdownloadmanager.desktop.pages.addDownload.single
 
 import androidx.compose.animation.*
+import com.abdownloadmanager.shared.util.ui.motion.crossSlideSpec
+import com.abdownloadmanager.shared.util.ui.motion.popIn
+import com.abdownloadmanager.shared.util.ui.motion.popOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -384,6 +388,8 @@ fun RenderResumeSupport(component: BaseAddSingleDownloadComponent) {
         val canAddToDownloads by component.canAddToDownloads.collectAsState()
         AnimatedVisibility(
             visible = canAddToDownloads && fileInfo != null,
+            enter = popIn(TransformOrigin.Center),
+            exit = popOut(TransformOrigin.Center),
         ) {
             fileInfo?.let { fileInfo ->
                 val iconModifier = Modifier
@@ -517,9 +523,7 @@ fun RenderFileTypeAndSize(
     Box(Modifier.padding(top = 16.dp)) {
         AnimatedContent(
             targetState = isLinkLoading,
-            transitionSpec = {
-                fadeIn() togetherWith fadeOut()
-            }
+            transitionSpec = crossSlideSpec()
         ) { loading ->
             if (loading) {
                 LoadingIndicator(iconModifier)
@@ -532,6 +536,7 @@ fun RenderFileTypeAndSize(
 
                 AnimatedContent(
                     linkCheckResult,
+                    transitionSpec = crossSlideSpec(),
                 ) { linkCheckResult ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

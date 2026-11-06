@@ -25,6 +25,8 @@ import com.abdownloadmanager.shared.util.div
 import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import com.abdownloadmanager.shared.util.ui.widget.MyIcon
 import ir.amirab.util.compose.IconSource
+import androidx.compose.animation.core.tween
+import com.abdownloadmanager.shared.util.ui.motion.Motion
 
 @Composable
 fun IconPick(
@@ -130,8 +132,8 @@ private fun Content(
         AnimatedVisibility(
             state.canScrollForward,
             modifier = Modifier.matchParentSize(),
-            enter = fadeIn(),
-            exit = fadeOut(),
+            enter = fadeIn(tween(Motion.SHORT, easing = Motion.Standard)),
+            exit = fadeOut(tween(Motion.SHORT - 60, easing = Motion.Standard)),
         ) {
             Spacer(
                 Modifier

@@ -1,6 +1,5 @@
 package com.abdownloadmanager.desktop.pages.poweractionalert
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +39,7 @@ import com.abdownloadmanager.shared.util.ui.theme.myTextSizes
 import ir.amirab.util.compose.asStringSource
 import ir.amirab.util.compose.resources.myStringResource
 import ir.amirab.util.desktop.screen.applyUiScale
+import com.abdownloadmanager.shared.util.ui.motion.glidingProgress
 
 @Composable
 fun PowerActionAlert(appComponent: AppComponent) {
@@ -98,9 +98,7 @@ private fun PowerActionAlertPage(component: PowerActionComponent) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box {
-                val progress = animateFloatAsState(
-                    (remainingTime.toFloat() / totalTime)
-                ).value
+                val progress = glidingProgress(remainingTime.toFloat() / totalTime)
                 val strokeWidth = 4.dp
                 Row(
                     Modifier

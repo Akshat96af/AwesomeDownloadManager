@@ -51,6 +51,7 @@ import ir.amirab.util.compose.action.buildMenu
 import ir.amirab.util.compose.asStringSource
 import ir.amirab.util.compose.resources.myStringResource
 import kotlinx.coroutines.flow.MutableStateFlow
+import com.abdownloadmanager.shared.util.ui.motion.glidingProgress
 
 @Composable
 fun FileChecksumPage(component: DesktopFileChecksumComponent) {
@@ -502,9 +503,7 @@ private data object FileChecksumTableCellRenderers {
                 val w = (percent / 100f).coerceIn(0f..1f)
                 Spacer(
                     Modifier.height(5.dp).fillMaxWidth(
-                        animateFloatAsState(
-                            w, tween(100)
-                        ).value
+                        glidingProgress(w)
                     ).background(background)
                 )
             }

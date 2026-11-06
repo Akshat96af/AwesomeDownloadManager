@@ -23,7 +23,9 @@ import com.abdownloadmanager.desktop.pages.settings.FontManager
 import com.abdownloadmanager.shared.ui.theme.ThemeManager
 import ir.amirab.downloader.queue.QueueManager
 import com.abdownloadmanager.desktop.repository.AppRepository
-import com.abdownloadmanager.desktop.utils.ytdlp.MediaMergeService
+import com.abdownloadmanager.desktop.utils.media.MediaMergeService
+import com.abdownloadmanager.desktop.utils.youtube.YouTubeSabrInterceptor
+import com.abdownloadmanager.desktop.utils.youtube.YouTubeSessionStore
 import com.abdownloadmanager.desktop.storage.*
 import com.abdownloadmanager.shared.util.ui.icon.MyIcons
 import com.abdownloadmanager.shared.util.ui.theme.ISystemThemeDetector
@@ -684,12 +686,16 @@ val appModule = module {
     single<AppDns> {
         AppDns(get<OkHttpClient>(BaseOKHttpClientQualifier), get())
     }
+    single { YouTubeSessionStore(get<DesktopDefinedPaths>().youtubeSessionsDir.toFile()) }
     single<OkHttpClient> {
         val baseClient = get<OkHttpClient>(BaseOKHttpClientQualifier)
         val appDns: AppDns = get()
+        // YouTube tracks are served in-process to the download engine (see YouTubeSabrInterceptor)
+        val youtube = YouTubeSabrInterceptor(get(), baseClient.newBuilder().dns(appDns).build())
         baseClient.newBuilder()
             .protocols(listOf(Protocol.HTTP_1_1))
             .dns(appDns)
+            .addInterceptor(youtube)
             .build()
     }
     single {

@@ -25,6 +25,9 @@ import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import ir.amirab.util.compose.resources.myStringResource
 import ir.amirab.util.compose.StringSource
 import ir.amirab.util.compose.asStringSource
+import androidx.compose.ui.graphics.TransformOrigin
+import com.abdownloadmanager.shared.util.ui.motion.popIn
+import com.abdownloadmanager.shared.util.ui.motion.popOut
 
 @Composable
 fun BatchDownload(
@@ -247,7 +250,11 @@ private fun WildcardLengthUi(
                 Text(it.text.rememberString())
             }
         )
-        AnimatedVisibility(wildcardLength is WildcardLength.Custom) {
+        AnimatedVisibility(
+            wildcardLength is WildcardLength.Custom,
+            enter = popIn(TransformOrigin(0f, 0.5f)),
+            exit = popOut(TransformOrigin(0f, 0.5f)),
+        ) {
             Row {
                 Spacer(Modifier.width(8.dp))
                 IntTextField(

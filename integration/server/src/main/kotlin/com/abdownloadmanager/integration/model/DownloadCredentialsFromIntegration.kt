@@ -31,16 +31,38 @@ data class HLSDownloadCredentialsFromIntegration(
     override val suggestedName: String? = null,
 ) : IDownloadCredentialsFromIntegration
 
-/**
- * A web page with a video on it (YouTube, Vimeo, ...). The app finds the actual media with yt-dlp,
- * so the browser does not need to understand each site's player.
- */
-@SerialName("page")
+/** One stream of a YouTube video, as the page's player lists it. */
 @Serializable
-data class PageDownloadCredentialsFromIntegration(
+data class YouTubeFormatFromIntegration(
+    val itag: Int,
+    val lastModified: String,
+    val xtags: String? = null,
+    val mimeType: String,
+)
+
+/**
+ * A YouTube video in one quality. The browser extension captures the page player's own streaming
+ * session (the SABR URL as the player requested it, plus one request body carrying the player's
+ * client info and proof-of-origin token), so the app can stream the chosen formats itself.
+ */
+@SerialName("youtube")
+@Serializable
+data class YouTubeDownloadCredentialsFromIntegration(
     override val link: String,
     override val downloadPage: String? = null,
     override val suggestedName: String? = null,
+    val videoId: String,
+    val streamingUrl: String,
+    /** base64 */
+    val requestBody: String,
+    /** base64url, from the player's media ustreamer config */
+    val ustreamerConfig: String,
+    val userAgent: String? = null,
+    /** null for audio only */
+    val video: YouTubeFormatFromIntegration? = null,
+    val audio: YouTubeFormatFromIntegration,
+    /** "mp4", "mkv", "m4a" or "webm" */
+    val container: String,
 ) : IDownloadCredentialsFromIntegration
 
 @Serializable

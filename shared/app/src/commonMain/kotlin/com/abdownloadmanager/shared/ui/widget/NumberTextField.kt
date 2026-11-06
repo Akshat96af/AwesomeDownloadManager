@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import com.abdownloadmanager.shared.util.ui.theme.mySpacings
 import ir.amirab.util.compose.IconSource
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 private val DefaultShape
     @Composable
@@ -323,7 +325,7 @@ private fun <T : Comparable<T>> VerticalDirectionHandle(
     val isHovered by interactionSource.collectIsHoveredAsState()
 
     WithContentAlpha(
-        animateFloatAsState(if (isDragging || isHovered) 1f else 0.5f).value
+        animateFloatAsState(if (isDragging || isHovered) 1f else 0.5f, motionSpec(Motion.snappy())).value
     ) {
         Row(
             modifier

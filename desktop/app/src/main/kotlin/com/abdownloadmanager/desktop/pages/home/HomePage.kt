@@ -3,8 +3,6 @@ package com.abdownloadmanager.desktop.pages.home
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -77,6 +75,11 @@ import ir.amirab.util.platform.isMac
 import kotlinx.coroutines.launch
 import java.awt.datatransfer.DataFlavor
 import java.io.File
+import androidx.compose.ui.graphics.TransformOrigin
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
+import com.abdownloadmanager.shared.util.ui.motion.popIn
+import com.abdownloadmanager.shared.util.ui.motion.popOut
 
 
 @Composable
@@ -281,7 +284,7 @@ fun HomePage(component: HomeComponent) {
     ) {
         Column(
             Modifier.alpha(
-                animateFloatAsState(if (isDragging) 0.2f else 1f).value
+                animateFloatAsState(if (isDragging) 0.2f else 1f, motionSpec(Motion.snappy())).value
             )
         ) {
             if (!mergeTopBar) {
@@ -387,8 +390,8 @@ fun HomePage(component: HomeComponent) {
         )
         AnimatedVisibility(
             visible = isDragging,
-            enter = fadeIn(),
-            exit = fadeOut(),
+            enter = popIn(TransformOrigin.Center),
+            exit = popOut(TransformOrigin.Center),
         ) {
             DragWidget(
                 Modifier.fillMaxSize()
@@ -923,7 +926,8 @@ fun HomeSearch(
             modifier = modifier
                 .width(
                     animateDpAsState(
-                        if (isFocused) 220.dp else 180.dp
+                        if (isFocused) 220.dp else 180.dp,
+                        motionSpec(Motion.smooth()),
                     ).value
                 )
         )

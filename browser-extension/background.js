@@ -3,6 +3,7 @@
 const api = globalThis.browser || chrome;
 const HOST = 'com.absolutedownloadmanager';
 const MEDIA_KEY = 'mediaByTab';
+const SABR_KEY = 'sabrByTab';
 
 // ---------- talking to the app ----------
 
@@ -68,9 +69,6 @@ async function fileItem(url, {referrer, name} = {}) {
   return {type: isHls ? 'hls' : 'http', link: url, headers: await headersFor(url, referrer), downloadPage: httpUrl(referrer) || undefined, suggestedName: name || undefined};
 }
 
-function pageItem(pageUrl, title) {
-  return {type: 'page', link: pageUrl, downloadPage: pageUrl, suggestedName: title || undefined};
-}
 
 // ---------- settings ----------
 
@@ -121,27 +119,31 @@ if (api.downloads.onDeterminingFilename) {
 // ---------- media detection ----------
 
 const FRAGMENT = /\.(m4s|ts|aac|vtt)(?:[?#]|$)|\/init[^/]*\.mp4(?:[?#]|$)/i;
-// YouTube serves media in ranged fragments; the page item (yt-dlp in the app) covers it properly.
+// YouTube streams in fragments over SABR; the YouTube menu (below) downloads it properly.
 const FRAGMENT_HOSTS = /(^|\.)googlevideo\.com$/i;
 
+// per-tab lists kept in session storage, because the service worker may be stopped between events
 let sessionWrite = Promise.resolve();
-function updateMedia(change) {
+function updateTabStore(key, change) {
   sessionWrite = sessionWrite.then(async () => {
-    const data = await api.storage.session.get(MEDIA_KEY);
-    const map = data[MEDIA_KEY] || {};
+    const data = await api.storage.session.get(key);
+    const map = data[key] || {};
     change(map);
     const tabs = Object.keys(map);
     tabs.slice(0, Math.max(0, tabs.length - 40)).forEach(tab => delete map[tab]);
-    await api.storage.session.set({[MEDIA_KEY]: map});
+    await api.storage.session.set({[key]: map});
   }).catch(() => {});
   return sessionWrite;
 }
 
-async function mediaFor(tabId) {
+async function tabStore(key, tabId) {
   await sessionWrite;
-  const data = await api.storage.session.get(MEDIA_KEY);
-  return data[MEDIA_KEY]?.[tabId] || [];
+  const data = await api.storage.session.get(key);
+  return data[key]?.[tabId] || [];
 }
+
+const updateMedia = change => updateTabStore(MEDIA_KEY, change);
+const mediaFor = tabId => tabStore(MEDIA_KEY, tabId);
 
 api.webRequest.onHeadersReceived.addListener(details => {
   if (details.tabId < 0 || ![200, 206].includes(details.statusCode)) return;
@@ -172,15 +174,68 @@ async function refreshBadge(tabId) {
 function forgetTab(tabId) {
   updateMedia(map => { delete map[tabId]; }).then(() => refreshBadge(tabId));
 }
-api.tabs.onRemoved.addListener(forgetTab);
+api.tabs.onRemoved.addListener(tabId => {
+  forgetTab(tabId);
+  updateTabStore(SABR_KEY, map => { delete map[tabId]; });
+});
 api.tabs.onUpdated.addListener((tabId, change) => { if (change.status === 'loading' && change.url) forgetTab(tabId); });
+
+// ---------- YouTube ----------
+// YouTube's web player streams over SABR: it POSTs to one videoplayback URL (whose `n` it rewrites first)
+// with a protobuf body carrying its client info and proof-of-origin token. The app replays that session,
+// so keep the last few requests per tab. Their `id` parameter matches the player data's streaming URL,
+// which tells which video a capture belongs to after in-page navigation.
+
+function base64(bytes) {
+  let text = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) text += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(text);
+}
+
+api.webRequest.onBeforeRequest.addListener(details => {
+  if (details.tabId < 0 || details.method !== 'POST') return;
+  let url;
+  try { url = new URL(details.url); } catch { return; }
+  const id = url.searchParams.get('id');
+  const raw = details.requestBody?.raw?.[0]?.bytes;
+  if (url.searchParams.get('sabr') !== '1' || !id || !raw || raw.byteLength > 262144) return;
+  const capture = {id, url: details.url, body: base64(new Uint8Array(raw))};
+  updateTabStore(SABR_KEY, map => {
+    map[details.tabId] = (map[details.tabId] || []).filter(c => c.id !== id).concat(capture).slice(-4);
+  });
+}, {urls: ['https://*.googlevideo.com/videoplayback*']}, ['requestBody']);
+
+/** Turns the menu's picks into "youtube" items for the app, using the player's captured session. */
+async function youtubeItems(tabId, pageUrl, player, picks) {
+  let abr;
+  try { abr = new URL(player?.abrUrl); } catch {}
+  if (!abr || !/(^|\.)googlevideo\.com$/.test(abr.hostname) || !player.ustreamer) {
+    throw new Error('This video cannot be downloaded (no stream information).');
+  }
+  const capture = (await tabStore(SABR_KEY, tabId)).findLast(c => c.id === abr.searchParams.get('id'));
+  if (!capture) throw new Error('Play the video for a moment, then try again.');
+  const format = f => f && {itag: f.itag, lastModified: String(f.lastModified), xtags: f.xtags || null, mimeType: f.mimeType};
+  return picks.map(pick => ({
+    type: 'youtube',
+    link: pageUrl,
+    downloadPage: pageUrl,
+    suggestedName: player.title,
+    videoId: player.videoId,
+    streamingUrl: capture.url,
+    requestBody: capture.body,
+    ustreamerConfig: player.ustreamer,
+    userAgent: navigator.userAgent,
+    video: format(pick.video),
+    audio: format(pick.audio),
+    container: pick.container,
+  }));
+}
 
 // ---------- context menus ----------
 
 api.runtime.onInstalled.addListener(() => {
   api.contextMenus.removeAll(() => {
     api.contextMenus.create({id: 'adm-link', title: 'Download with Absolute DM', contexts: ['link', 'video', 'audio', 'image']});
-    api.contextMenus.create({id: 'adm-page-video', title: 'Download video from this page', contexts: ['page', 'video']});
     api.contextMenus.create({id: 'adm-all-links', title: 'Download all links on this page', contexts: ['page', 'selection']});
   });
 });
@@ -191,8 +246,6 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
       const url = httpUrl(info.linkUrl || info.srcUrl);
       if (!url) throw new Error('This link cannot be downloaded.');
       await addToApp([await fileItem(url, {referrer: tab?.url})]);
-    } else if (info.menuItemId === 'adm-page-video') {
-      await addToApp([pageItem(tab.url, tab.title)]);
     } else if (info.menuItemId === 'adm-all-links') {
       const links = await api.tabs.sendMessage(tab.id, {action: 'collectLinks', selectionOnly: !!info.selectionText});
       if (!links?.length) throw new Error('No links found.');
@@ -211,10 +264,10 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
     const tabId = sender.tab?.id ?? message.tabId;
     switch (message.action) {
       case 'choices': return {ok: true, media: await mediaFor(tabId)};
-      case 'downloadPage': {
-        const pageUrl = httpUrl(message.pageUrl || sender.tab?.url);
-        if (!pageUrl) throw new Error('This page cannot be downloaded.');
-        await addToApp([pageItem(pageUrl, message.title || sender.tab?.title)]);
+      case 'downloadYouTube': {
+        const pageUrl = httpUrl(sender.tab?.url);
+        if (!pageUrl || !Array.isArray(message.picks) || !message.picks.length) throw new Error('Nothing to download.');
+        await addToApp(await youtubeItems(tabId, pageUrl, message.player, message.picks.slice(0, 20)));
         return {ok: true};
       }
       case 'downloadMedia': {

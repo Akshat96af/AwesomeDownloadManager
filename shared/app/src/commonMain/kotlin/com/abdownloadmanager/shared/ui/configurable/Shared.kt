@@ -7,8 +7,6 @@ import com.abdownloadmanager.shared.util.ui.icon.MyIcons
 import com.abdownloadmanager.shared.util.ui.myColors
 import ir.amirab.util.ifThen
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,6 +44,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
+import com.abdownloadmanager.shared.util.ui.motion.conceal
+import com.abdownloadmanager.shared.util.ui.motion.reveal
 
 fun <T> defaultValueToString(item: T): List<String> {
     return emptyList()
@@ -297,8 +297,8 @@ fun ConfigurationWrapper(
     ) {
         AnimatedVisibility(
             visible = visible,
-            exit = shrinkVertically(),
-            enter = expandVertically(),
+            exit = conceal(),
+            enter = reveal(),
         ) {
             content()
         }

@@ -45,6 +45,18 @@
       "css": [],
       "all_frames": false,
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://m.youtube.com/*"
+      ],
+      "js": [
+        "youtube-page.js"
+      ],
+      "world": "MAIN",
+      "all_frames": false,
+      "run_at": "document_idle"
     }
   ]
 }

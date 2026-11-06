@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.abdownloadmanager.shared.util.ui.motion.conceal
+import com.abdownloadmanager.shared.util.ui.motion.reveal
 
 @Composable
 fun ExpandableItem(
@@ -14,7 +16,7 @@ fun ExpandableItem(
 ){
     Column(modifier) {
         header()
-        AnimatedVisibility(isExpanded){
+        AnimatedVisibility(isExpanded, enter = reveal(), exit = conceal()) {
             body()
         }
     }

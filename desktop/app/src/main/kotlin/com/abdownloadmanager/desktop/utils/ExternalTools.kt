@@ -2,7 +2,7 @@ package com.abdownloadmanager.desktop.utils
 
 import java.io.File
 
-/** Locates external executables (yt-dlp, ffmpeg): first on PATH, then in winget's per-package folders. */
+/** Locates external executables (ffmpeg): first on PATH, then in winget's per-package folders. */
 object ExternalTools {
     fun find(exeName: String, wingetPackagePrefix: String): File? {
         val onPath = System.getenv("PATH").orEmpty().split(File.pathSeparator)

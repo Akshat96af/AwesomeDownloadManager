@@ -10,8 +10,6 @@ import com.abdownloadmanager.shared.ui.widget.Handle
 import com.abdownloadmanager.shared.ui.widget.Text
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -34,6 +32,10 @@ import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import com.abdownloadmanager.shared.util.ui.theme.myTextSizes
 import io.github.oikvpqya.compose.fastscroller.rememberScrollbarAdapter
 import ir.amirab.util.ifThen
+import androidx.compose.ui.graphics.TransformOrigin
+import com.abdownloadmanager.shared.util.ui.motion.growIn
+import com.abdownloadmanager.shared.util.ui.motion.growOut
+import com.abdownloadmanager.shared.util.ui.motion.crossSlideSpec
 
 @Composable
 private fun SideBar(
@@ -108,8 +110,8 @@ private fun SideBarItem(icon: IconSource, name: String, isSelected: Boolean, onC
             isSelected,
             modifier = Modifier
                 .align(Alignment.CenterStart),
-            enter = scaleIn(),
-            exit = scaleOut(),
+            enter = growIn(TransformOrigin(0f, 0.5f)),
+            exit = growOut(TransformOrigin(0f, 0.5f)),
         ) {
             Spacer(
                 Modifier
@@ -182,7 +184,7 @@ fun SettingsPage(
             ) {
                 sideBarWidth = (sideBarWidth + it).coerceIn(150.dp..300.dp)
             }
-            AnimatedContent(currentConfigurables) { configurableGroups ->
+            AnimatedContent(currentConfigurables, transitionSpec = crossSlideSpec()) { configurableGroups ->
                 val scrollState = rememberScrollState()
                 val scrollbarAdapter = rememberScrollbarAdapter(scrollState)
                 Row {

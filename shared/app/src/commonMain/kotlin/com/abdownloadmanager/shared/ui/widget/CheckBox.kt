@@ -7,6 +7,13 @@ import com.abdownloadmanager.shared.util.ui.myColors
 import ir.amirab.util.ifThen
 import com.abdownloadmanager.shared.util.div
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import com.abdownloadmanager.shared.util.ui.motion.LocalReduceMotion
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -44,6 +51,8 @@ import com.abdownloadmanager.shared.util.ui.WithContentAlpha
 import com.abdownloadmanager.shared.util.ui.theme.mySpacings
 import ir.amirab.util.compose.modifiers.silentClickable
 import ir.amirab.util.compose.resources.myStringResource
+import com.abdownloadmanager.shared.util.ui.motion.Motion
+import com.abdownloadmanager.shared.util.ui.motion.motionSpec
 
 @Composable
 fun CheckBox(
@@ -84,14 +93,11 @@ fun CheckBox(
         )
         AnimatedContent(
             value,
-            transitionSpec = {
-                val tween = tween<Float>(220)
-                fadeIn(tween) togetherWith fadeOut(tween)
-            }
+            transitionSpec = togglePopSpec(),
         ) {
             val m = Modifier
                 .fillMaxSize()
-                .alpha(animateFloatAsState(if (value) 1f else 0f).value)
+                .alpha(animateFloatAsState(if (value) 1f else 0f, motionSpec(Motion.snappy())).value)
                 .background(myColors.primaryGradient)
             if (it) {
                 MyIcon(
@@ -136,6 +142,20 @@ fun LabeledCheckbox(
             if (enabled) 1f else 0.5f,
         ) {
             Text(description)
+        }
+    }
+}
+
+/** A check mark or dot: pops in with one soft overshoot and leaves quickly. */
+@Composable
+internal fun <S> togglePopSpec(): AnimatedContentTransitionScope<S>.() -> ContentTransform {
+    val reduceMotion = LocalReduceMotion.current
+    return {
+        if (reduceMotion) {
+            EnterTransition.None togetherWith ExitTransition.None
+        } else {
+            (fadeIn(tween(120, easing = Motion.EmphasizedDecelerate)) + scaleIn(Motion.lively(), initialScale = 0.6f)) togetherWith
+                    (fadeOut(tween(90)) + scaleOut(tween(90), targetScale = 0.6f))
         }
     }
 }

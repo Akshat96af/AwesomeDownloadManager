@@ -30,6 +30,8 @@ import com.abdownloadmanager.shared.util.ui.theme.myTextSizes
 import com.abdownloadmanager.shared.util.ui.widget.MyIcon
 import ir.amirab.util.compose.IconSource
 import ir.amirab.util.ifThen
+import com.abdownloadmanager.shared.util.ui.motion.conceal
+import com.abdownloadmanager.shared.util.ui.motion.reveal
 
 @Composable
 fun MyTextFieldWithIcons(
@@ -77,7 +79,7 @@ fun MyTextFieldWithIcons(
                 }
             }
         )
-        AnimatedVisibility(errorText != null) {
+        AnimatedVisibility(errorText != null, enter = reveal(), exit = conceal()) {
             if (errorText != null) {
                 Text(
                     errorText,

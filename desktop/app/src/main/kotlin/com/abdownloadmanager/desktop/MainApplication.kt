@@ -12,7 +12,7 @@ import com.abdownloadmanager.shared.util.DownloadSystem
 import com.abdownloadmanager.shared.util.appinfo.PreviousVersion
 import com.abdownloadmanager.shared.util.keepawake.KeepAwakeManager
 import com.abdownloadmanager.desktop.utils.BackgroundFootprint
-import com.abdownloadmanager.desktop.utils.ytdlp.MediaMergeService
+import com.abdownloadmanager.desktop.utils.media.MediaMergeService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
