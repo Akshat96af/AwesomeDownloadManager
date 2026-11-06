@@ -3,17 +3,33 @@
 </p>
 
 <p align="center">
-  <b>A fast, modern download manager for Windows.</b><br>
-  Parallel segments, instant resume, every network you have, and a browser extension that just hands things over.
+  <img src="docs/readme/typing.svg" alt="Split one file into 16 parallel streams. Pause tonight, resume next week. Wi-Fi + Ethernet + phone, all at once. Every YouTube quality, one click away." width="720">
 </p>
 
 <p align="center">
-  <a href="#get-the-app">Get the app</a> ·
-  <a href="#browser-extension">Browser extension</a> ·
-  <a href="#build-from-source">Build from source</a>
+  <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-7C6CFF?style=for-the-badge&logo=windows11&logoColor=white&labelColor=0B0B14">
+  <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-Compose%20Desktop-5B8DEF?style=for-the-badge&logo=kotlin&logoColor=white&labelColor=0B0B14">
+  <img alt="JDK 25" src="https://img.shields.io/badge/JDK-25-3FD8F2?style=for-the-badge&logo=openjdk&logoColor=white&labelColor=0B0B14">
+  <img alt="License Apache 2.0" src="https://img.shields.io/badge/License-Apache%202.0-22D3EE?style=for-the-badge&labelColor=0B0B14">
 </p>
 
-## Features
+<p align="center">
+  <a href="#get-the-app"><b>Get the app</b></a> &nbsp;·&nbsp;
+  <a href="#browser-extension"><b>Browser extension</b></a> &nbsp;·&nbsp;
+  <a href="#build-from-source"><b>Build from source</b></a>
+</p>
+
+<img src="docs/readme/divider.svg" width="100%" alt="">
+
+## ✦ What it does
+
+<p align="center">
+  <img src="docs/readme/features.svg" alt="Parallel segments, adaptive connections, every network at once, resume anywhere, YouTube in every quality, cinematic but light" width="100%">
+</p>
+
+<details>
+<summary><b>The details</b></summary>
+<br>
 
 - **Segmented, resumable downloads.** One file is downloaded over several connections at once; a part that
   finishes early takes over half of a part that is still running. Downloads survive pauses, restarts and dropped connections.
@@ -29,22 +45,28 @@
 - **Browser extension (Chrome and Edge).** Captures browser downloads with your cookies so logged-in links work,
   detects media on the page, and adds right-click actions.
 - **Optional antivirus check.** Scan every finished file with Microsoft Defender.
-- **Designed to feel good.** A resizable 16:10 window, smooth motion that respects the Windows "Animation effects"
-  setting, and a progress bar that keeps moving between updates. When the window is closed the app idles in the
-  tray at roughly 30 MB.
+- **Designed to feel good.** Spring-driven motion throughout (tactile presses, menus that pop from their anchor,
+  content that unfolds instead of blinking on), all of it respecting the Windows "Animation effects" setting, and a
+  progress bar that keeps gliding between updates. When the window is closed the app idles in the tray at roughly 30 MB.
 
-## Screenshots
+</details>
 
-<!-- SCREENSHOTS: put your images in docs/screenshots/ and uncomment the block below.
+<img src="docs/readme/divider.svg" width="100%" alt="">
 
-| Downloads | Download in progress |
-|---|---|
-| ![Home](docs/screenshots/app-home.png) | ![Progress](docs/screenshots/app-download.png) |
+## ✦ A look inside
 
-| Browser extension | Video quality menu |
-|---|---|
-| ![Extension](docs/screenshots/extension.png) | ![Menu](docs/screenshots/video-menu.png) |
--->
+<p align="center">
+  <img src="docs/readme/screens/downloads.png" alt="The download list: files of every kind, one downloading at 20 MiB/s, the rest finished" width="100%">
+</p>
+
+<table>
+  <tr>
+    <td width="42%" align="center"><img src="docs/readme/screens/progress.png" alt="A download in progress: 45%, 26 MiB/s, resumable"><br><sub><b>Live progress.</b> Speed, time left and a bar that glides between ticks.</sub></td>
+    <td width="58%" align="center"><img src="docs/readme/screens/completed.png" alt="A finished download with its completion dialog and notification"><br><sub><b>Landing.</b> A completion beat, a notification, and one click to open.</sub></td>
+  </tr>
+</table>
+
+<img src="docs/readme/divider.svg" width="100%" alt="">
 
 ## Requirements
 

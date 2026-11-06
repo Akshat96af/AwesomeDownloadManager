@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 18" width="1200" height="18" aria-hidden="true">
+<defs>
+  <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7C6CFF" stop-opacity="0"/><stop offset=".5" stop-color="#7C6CFF" stop-opacity=".55"/><stop offset="1" stop-color="#22D3EE" stop-opacity="0"/></linearGradient>
+  <radialGradient id="spark"><stop offset="0" stop-color="#E6FBFF"/><stop offset=".4" stop-color="#3FD8F2" stop-opacity=".8"/><stop offset="1" stop-color="#3FD8F2" stop-opacity="0"/></radialGradient>
+</defs>
+<style>.spark{animation:travel 4.5s cubic-bezier(.45,0,.25,1) infinite}@keyframes travel{0%{transform:translateX(-80px);opacity:0}15%,85%{opacity:1}100%{transform:translateX(1280px);opacity:0}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<rect x="0" y="8.25" width="1200" height="1.5" fill="url(#line)"/>
+<ellipse class="spark" cx="0" cy="9.0" rx="70" ry="5" fill="url(#spark)"/>
+</svg>
