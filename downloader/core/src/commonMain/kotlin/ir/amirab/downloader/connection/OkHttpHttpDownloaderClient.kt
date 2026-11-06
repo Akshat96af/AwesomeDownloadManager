@@ -16,17 +16,20 @@ class OkHttpHttpDownloaderClient(
     private val proxyStrategyProvider: ProxyStrategyProvider,
     private val systemProxySelectorProvider: SystemProxySelectorProvider,
     private val autoConfigurableProxyProvider: AutoConfigurableProxyProvider,
+    // spreads part connections over every network when the user turns that on; null = always the OS route
+    private val multiNetwork: MultiNetwork? = null,
 ) : HttpDownloaderClient() {
     private fun newCall(
         downloadCredentials: IHttpBasedDownloadCredentials,
         start: Long?,
         end: Long?,
         extraBuilder: Request.Builder.() -> Unit,
+        client: OkHttpClient = okHttpClient,
     ): Call {
         val rangeHeader = start?.let {
             createRangeHeader(start, end)
         }
-        return okHttpClient
+        return client
             .applyProxy(downloadCredentials)
             .newCall(
                 Request.Builder()
@@ -169,14 +172,18 @@ class OkHttpHttpDownloaderClient(
         start: Long?,
         end: Long?,
     ): Connection<HttpResponseInfo> {
-        val response = newCall(
-            downloadCredentials = credentials,
-            start = start,
-            end = end,
-            extraBuilder = {
-                get()
-            }
-        ).await()
+        val connectOver: suspend (OkHttpClient) -> Response = { client ->
+            newCall(
+                downloadCredentials = credentials,
+                start = start,
+                end = end,
+                extraBuilder = {
+                    get()
+                },
+                client = client,
+            ).await()
+        }
+        val response = multiNetwork?.connect(okHttpClient, connectOver) ?: connectOver(okHttpClient)
         val body = runCatching {
             requireNotNull(response.body) {
                 "body is null"

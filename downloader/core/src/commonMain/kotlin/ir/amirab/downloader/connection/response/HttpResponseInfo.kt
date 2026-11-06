@@ -87,7 +87,7 @@ data class HttpResponseInfo(
 
     override val unsuccessFullException: Throwable? by lazy {
         if (!isSuccessFul) {
-            UnSuccessfulResponseException(statusCode, message)
+            UnSuccessfulResponseException(statusCode, message, responseHeaders["retry-after"]?.trim()?.toLongOrNull())
         } else {
             null
         }

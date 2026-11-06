@@ -57,6 +57,7 @@ class AppSettingsStorage(
     override val useRelativeDateTime = from(AppSettingsModel.useRelativeDateTime)
     val useSystemTray = from(AppSettingsModel.useSystemTray)
     val scanDownloadsWithDefender = from(AppSettingsModel.scanDownloadsWithDefender)
+    val useAllNetworks = from(AppSettingsModel.useAllNetworks)
     override val threadCount = from(AppSettingsModel.threadCount)
     override val maxConcurrentDownloads = from(AppSettingsModel.maxConcurrentDownloads)
     override val dynamicPartCreation = from(AppSettingsModel.dynamicPartCreation)

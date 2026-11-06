@@ -58,6 +58,7 @@ data class AppSettingsModel(
     val useNativeMenuBar: Boolean,
     val useSystemTray: Boolean,
     val scanDownloadsWithDefender: Boolean,
+    val useAllNetworks: Boolean,
 ) : IAppSettingsModel {
     companion object {
     }
@@ -71,6 +72,7 @@ val DesktopSettingsSchema = S.typeSafeObject(
         prop(AppSettingsModel::useNativeMenuBar) bind S.boolean().catch(PlatformDefaultSettings.useNativeMenuBar)
         prop(AppSettingsModel::useSystemTray) bind S.boolean().catch(PlatformDefaultSettings.useSystemTray)
         prop(AppSettingsModel::scanDownloadsWithDefender) bind S.boolean().catch(PlatformDefaultSettings.scanDownloadsWithDefender)
+        prop(AppSettingsModel::useAllNetworks) bind S.boolean().catch(PlatformDefaultSettings.useAllNetworks)
     },
     factory = {
         PlatformAppSettingsModel(
@@ -118,6 +120,7 @@ val DesktopSettingsSchema = S.typeSafeObject(
             useNativeMenuBar = it[AppSettingsModel::useNativeMenuBar],
             useSystemTray = it[AppSettingsModel::useSystemTray],
             scanDownloadsWithDefender = it[AppSettingsModel::scanDownloadsWithDefender],
+            useAllNetworks = it[AppSettingsModel::useAllNetworks],
         )
     }
 ).asSettingsSchema()

@@ -21,6 +21,8 @@ import com.abdownloadmanager.desktop.storage.PageStatesStorage
 import com.abdownloadmanager.desktop.ui.widget.MessageDialogModel
 import com.abdownloadmanager.desktop.utils.IntegrationPortBroadcaster
 import com.abdownloadmanager.desktop.utils.BackgroundFootprint
+import com.abdownloadmanager.desktop.utils.NetworkDiscovery
+import com.abdownloadmanager.desktop.utils.shouldSuggestAllNetworks
 import com.abdownloadmanager.integration.Integration
 import com.abdownloadmanager.integration.IntegrationResult
 import com.abdownloadmanager.resources.Res
@@ -69,6 +71,7 @@ import ir.amirab.downloader.queue.QueueManager
 import ir.amirab.util.compose.IIconResolver
 import ir.amirab.util.compose.StringSource
 import ir.amirab.util.compose.asStringSource
+import ir.amirab.util.compose.asStringSourceWithARgs
 import ir.amirab.util.coroutines.launchWithDeferred
 import ir.amirab.util.desktop.poweraction.PowerActionConfig
 import ir.amirab.util.flow.mapStateFlow
@@ -538,6 +541,44 @@ class AppComponent(
                 Pages()
             }
         }
+    }
+
+    private val networkDiscovery: NetworkDiscovery by inject()
+    private val suggestedAllNetworksFor = mutableSetOf<Long>()
+
+    init {
+        // a large download started while only one network is used: offer to use all of them (once per download)
+        downloadSystem.downloadEvents
+            .filterIsInstance<DownloadManagerEvents.OnJobStarted>()
+            .onEach { event ->
+                val item = event.downloadItem
+                fun shouldSuggest(networkCount: Int) = shouldSuggestAllNetworks(
+                    item.contentLength, appSettings.useAllNetworks.value, networkCount, item.id in suggestedAllNetworksFor,
+                )
+                // cheap checks first, so network discovery only runs for large downloads
+                if (!shouldSuggest(networkCount = 2)) return@onEach
+                val networks = withContext(Dispatchers.IO) { networkDiscovery.refresh() }
+                if (!shouldSuggest(networks.size)) return@onEach
+                suggestedAllNetworksFor.add(item.id)
+                beep(NotificationType.Info)
+                newDialogMessage(
+                    MessageDialogModel(
+                        id = "multi-network-suggestion",
+                        title = Res.string.multi_network_suggestion_title.asStringSource(),
+                        description = Res.string.multi_network_suggestion_description.asStringSourceWithARgs(
+                            Res.string.multi_network_suggestion_description_createArgs(
+                                name = item.name,
+                                size = "%.1f GB".format(item.contentLength / (1024.0 * 1024 * 1024)),
+                                networks = networks.joinToString(", ") { "${it.name} (${it.label})" },
+                            )
+                        ),
+                        type = MessageDialogType.Info,
+                        actionLabel = Res.string.multi_network_suggestion_turn_on.asStringSource(),
+                        onAction = { appSettings.useAllNetworks.value = true },
+                        dismissLabel = Res.string.not_now.asStringSource(),
+                    )
+                )
+            }.launchIn(scope)
     }
 
     init {

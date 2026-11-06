@@ -36,6 +36,10 @@ data class MessageDialogModel(
     val title: StringSource,
     val description: StringSource,
     val type: MessageDialogType = MessageDialogType.Info,
+    // optional second button; the dialog closes after it runs
+    val actionLabel: StringSource? = null,
+    val onAction: (() -> Unit)? = null,
+    val dismissLabel: StringSource? = null,
 )
 
 @Composable
@@ -116,8 +120,18 @@ fun MessageDialog(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
+                    if (msgContent.actionLabel != null && msgContent.onAction != null) {
+                        ActionButton(
+                            msgContent.actionLabel.rememberString(),
+                            onClick = {
+                                msgContent.onAction.invoke()
+                                onConfirm()
+                            }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                    }
                     ActionButton(
-                        myStringResource(Res.string.ok),
+                        msgContent.dismissLabel?.rememberString() ?: myStringResource(Res.string.ok),
                         onClick = onConfirm
                     )
                 }

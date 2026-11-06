@@ -210,8 +210,8 @@ installerPlugin {
             "cli_binary_name" to cliBinaryName,
             "app_publisher" to "Absolute Download Manager",
             "app_version_with_build" to "${getAppVersionStringForPackaging(TargetFormat.Exe)}.0",
-            "source_code_url" to "https://github.com/Akshat96af/absolute-download-manager",
-            "project_website" to "https://github.com/Akshat96af/absolute-download-manager",
+            "source_code_url" to "https://github.com/Akshat96af/AwesomeDownloadManager",
+            "project_website" to "https://github.com/Akshat96af/AwesomeDownloadManager",
             "copyright" to "© Absolute Download Manager contributors. Based on AB Download Manager (Apache-2.0)",
             "header_image_file" to project.file("resources/installer/abdm-header-image.bmp"),
             "sidebar_image_file" to project.file("resources/installer/abdm-sidebar-image.bmp")

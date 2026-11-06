@@ -155,6 +155,7 @@ class DesktopSettingsComponent(
                             CommonSettings.maxDownloadRetryCount(appRepository),
                             CommonSettings.dynamicPartDownloadConfig(appRepository),
                             CommonSettings.minPartSize(appRepository),
+                            DesktopSettings.useAllNetworks(appSettings),
                         )
                     ),
                     ConfigurableGroup(

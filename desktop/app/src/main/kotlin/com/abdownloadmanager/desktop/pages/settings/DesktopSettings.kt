@@ -60,6 +60,17 @@ object DesktopSettings {
         )
     }
 
+    fun useAllNetworks(appSettings: AppSettingsStorage): BooleanConfigurable {
+        return BooleanConfigurable(
+            title = Res.string.settings_use_all_networks.asStringSource(),
+            description = Res.string.settings_use_all_networks_description.asStringSource(),
+            backedBy = appSettings.useAllNetworks,
+            describe = {
+                it.asToggledStringSource()
+            },
+        )
+    }
+
     fun fontConfig(
         fontManager: FontManager,
         scope: CoroutineScope,

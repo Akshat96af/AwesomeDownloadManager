@@ -7,4 +7,5 @@ actual object PlatformDefaultSettings : DefaultAppSettings() {
     val useNativeMenuBar: Boolean get() = false
     val useSystemTray: Boolean get() = true
     val scanDownloadsWithDefender: Boolean get() = false
+    val useAllNetworks: Boolean get() = false
 }

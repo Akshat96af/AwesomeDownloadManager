@@ -172,6 +172,7 @@ class HttpDownloadJob(
 //                println("part downloaders created")
                 beginDownloadParts()
                 startAutoSaver()
+                startConnectionTuner()
                 downloadItem.status = DownloadStatus.Downloading
                 if (downloadItem.startTime == null) {
                     downloadItem.startTime = System.currentTimeMillis()
@@ -314,6 +315,31 @@ class HttpDownloadJob(
             ?: downloadManager.settings.defaultThreadCount
     }
 
+    /** The user's count is the maximum; how many actually run right now adapts to the server. */
+    private val adaptiveConnections = AdaptiveConnections()
+
+    private fun activeConnectionLimit(): Int {
+        val requested = getRequestedPartitionCount()
+        return if (supportsConcurrent == true) adaptiveConnections.limitFor(requested) else requested
+    }
+
+    /** Twice a second: grow while every connection is delivering, then open or close connections to match. */
+    private fun startConnectionTuner() {
+        activeDownloadScope?.launch {
+            while (true) {
+                delay(500)
+                val downloaders = getPartDownloaderList()
+                val active = downloaders.count { it.active }
+                val receiving = downloaders.count {
+                    it.active && it.part.statusFlow.value == PartDownloadStatus.ReceivingData
+                }
+                val before = activeConnectionLimit()
+                adaptiveConnections.onTick(System.currentTimeMillis(), active, receiving, getRequestedPartitionCount())
+                if (activeConnectionLimit() != before) beginDownloadParts()
+            }
+        }
+    }
+
     private suspend fun createPartsIfNotCreated() {
         if (parts.isNotEmpty()) {
             return
@@ -362,7 +388,7 @@ class HttpDownloadJob(
             try {
                 val activeCount = getPartDownloaderList()
                     .count { it.active }
-                val howMuchCreate = getRequestedPartitionCount() - activeCount
+                val howMuchCreate = activeConnectionLimit() - activeCount
                 if (howMuchCreate > 0) {
                     val mutableInactivePartDownloaderList = getPartDownloaderList()
                         .filter { !it.active && !it.part.isCompleted }
@@ -540,6 +566,15 @@ class HttpDownloadJob(
         when (partStatus) {
             is PartDownloadStatus.Canceled -> {
                 destination.onPartCancelled(partDownloader.part)
+                if (AdaptiveConnections.isServerPushback(partStatus.e)) {
+                    // the server is refusing: settle on fewer connections instead of retrying them all
+                    adaptiveConnections.onServerPushback(
+                        System.currentTimeMillis(),
+                        getPartDownloaderList().count { it.active },
+                        getRequestedPartitionCount(),
+                    )
+                    scope.launch { beginDownloadParts() }
+                }
             }
 
             PartDownloadStatus.Completed -> {

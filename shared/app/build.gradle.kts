@@ -108,19 +108,19 @@ buildConfig {
     buildConfigField(
         "PROJECT_WEBSITE",
         provider {
-            "https://github.com/Akshat96af/absolute-download-manager"
+            "https://github.com/Akshat96af/AwesomeDownloadManager"
         }
     )
     buildConfigField(
         "PROJECT_SOURCE_CODE",
         provider {
-            "https://github.com/Akshat96af/absolute-download-manager"
+            "https://github.com/Akshat96af/AwesomeDownloadManager"
         }
     )
     buildConfigField(
         "DONATE_LINK",
         provider {
-            "https://github.com/Akshat96af/absolute-download-manager"
+            "https://github.com/Akshat96af/AwesomeDownloadManager"
         }
     )
     buildConfigField(
@@ -132,25 +132,25 @@ buildConfig {
     buildConfigField(
         "PROJECT_GITHUB_REPO",
         provider {
-            "absolute-download-manager"
+            "AwesomeDownloadManager"
         }
     )
     buildConfigField(
         "PROJECT_TRANSLATIONS",
         provider {
-            "https://github.com/Akshat96af/absolute-download-manager"
+            "https://github.com/Akshat96af/AwesomeDownloadManager"
         }
     )
     buildConfigField(
         "INTEGRATION_CHROME_LINK",
         provider {
-            "https://github.com/Akshat96af/absolute-download-manager/tree/main/browser-extension"
+            "https://github.com/Akshat96af/AwesomeDownloadManager/tree/main/browser-extension"
         }
     )
     buildConfigField(
         "INTEGRATION_FIREFOX_LINK",
         provider {
-            "https://github.com/Akshat96af/absolute-download-manager/tree/main/browser-extension"
+            "https://github.com/Akshat96af/AwesomeDownloadManager/tree/main/browser-extension"
         }
     )
     buildConfigField(
@@ -168,13 +168,13 @@ buildConfig {
     buildConfigField(
         "TELEGRAM_GROUP",
         provider {
-            "https://github.com/Akshat96af/absolute-download-manager"
+            "https://github.com/Akshat96af/AwesomeDownloadManager"
         }
     )
     buildConfigField(
         "TELEGRAM_CHANNEL",
         provider {
-            "https://github.com/Akshat96af/absolute-download-manager"
+            "https://github.com/Akshat96af/AwesomeDownloadManager"
         }
     )
 }

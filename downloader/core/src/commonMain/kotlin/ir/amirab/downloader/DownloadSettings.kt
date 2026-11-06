@@ -14,7 +14,8 @@ data class DownloadSettings(
     var appendExtensionToIncompleteDownloads: Boolean = false,
 ) {
     companion object {
-        const val DEFAULT_THREAD_COUNT: Int = 8
+        // connections start at 8 and grow to this while the server keeps up (see AdaptiveConnections)
+        const val DEFAULT_THREAD_COUNT: Int = 16
         const val DEFAULT_MIN_PART_SIZE: Long = 512 * 1024L
         const val MIN_ALLOWED_MIN_PART_SIZE: Long = 1 * 1024L
         const val MAX_ALLOWED_MIN_PART_SIZE: Long = 2 * 1024 * 1024 * 1024L

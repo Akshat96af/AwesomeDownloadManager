@@ -1,5 +1,6 @@
 package ir.amirab.downloader.part
 
+import ir.amirab.downloader.downloaditem.http.AdaptiveConnections
 import ir.amirab.downloader.anntation.HeavyCall
 import ir.amirab.downloader.connection.Connection
 import ir.amirab.downloader.destination.DestWriter
@@ -78,7 +79,7 @@ abstract class PartDownloader<
             val result = runCatching {
                 while (coroutineContext.isActive || !stop) {
                     if (tries > 0) {
-                        delay(RetryDelay.milliseconds)
+                        delay(AdaptiveConnections.retryDelayMillis(tries, lastException).milliseconds)
 //                        println("#${part.from}retrying $tries")
                     }
                     if (haveToManyErrors()) {
@@ -255,7 +256,8 @@ abstract class PartDownloader<
         val buffer = Buffer()
         var totalReadCount = 0L
         var firstLoop = true
-        val bufferSize = DEFAULT_BUFFER_SIZE.toLong()
+        // 64 KiB per read instead of 8: far fewer lock/limiter/write round trips at high speed
+        val bufferSize = 64 * 1024L
         while (true) {
             if (stop || Thread.currentThread().isInterrupted) {
                 onCanceled(kotlinx.coroutines.CancellationException())

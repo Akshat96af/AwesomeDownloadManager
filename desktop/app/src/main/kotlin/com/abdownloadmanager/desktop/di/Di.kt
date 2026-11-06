@@ -42,6 +42,8 @@ import ir.amirab.downloader.DownloadManagerMinimalControl
 import ir.amirab.downloader.DownloadSettings
 import ir.amirab.downloader.connection.HttpDownloaderClient
 import ir.amirab.downloader.connection.OkHttpHttpDownloaderClient
+import ir.amirab.downloader.connection.MultiNetwork
+import com.abdownloadmanager.desktop.utils.NetworkDiscovery
 import ir.amirab.downloader.db.*
 import ir.amirab.downloader.monitor.DownloadMonitor
 import ir.amirab.downloader.utils.IDiskStat
@@ -214,13 +216,20 @@ val downloaderModule = module {
     single<UserAgentProvider> {
         UserAgentProviderFromSettings(get())
     }
+    single { NetworkDiscovery() }
     single<HttpDownloaderClient> {
+        val appSettings: AppSettingsStorage = get()
+        val networkDiscovery: NetworkDiscovery = get()
         OkHttpHttpDownloaderClient(
             get(),
             get(),
             get(),
             get(),
             get(),
+            multiNetwork = MultiNetwork(
+                isEnabled = { appSettings.useAllNetworks.value },
+                networks = { networkDiscovery.current() },
+            ),
         )
     }
     single {
