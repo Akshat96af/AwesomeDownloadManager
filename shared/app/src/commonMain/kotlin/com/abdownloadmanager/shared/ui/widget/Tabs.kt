@@ -17,6 +17,10 @@ import androidx.compose.ui.unit.dp
 import com.abdownloadmanager.shared.util.ui.theme.mySpacings
 import ir.amirab.util.compose.StringSource
 import ir.amirab.util.ifThen
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
+import com.abdownloadmanager.shared.util.ui.motion.pressFeedback
 
 
 @Composable
@@ -37,16 +41,21 @@ fun MyTab(
     title: StringSource,
     selectionBackground: Color = myColors.surface,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     WithContentAlpha(
         if (selected) 1f else 0.75f
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
+                .pressFeedback(interactionSource)
                 .ifThen(selected) {
                     background(selectionBackground)
                 }
-                .clickable { onClick() }
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
+                ) { onClick() }
                 .heightIn(mySpacings.thumbSize)
                 .padding(horizontal = 12.dp)
                 .padding(vertical = 6.dp)

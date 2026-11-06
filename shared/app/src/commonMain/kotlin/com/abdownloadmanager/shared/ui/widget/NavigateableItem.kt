@@ -12,6 +12,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
+import com.abdownloadmanager.shared.util.ui.motion.pressFeedback
 
 @Composable
 fun NavigateableItem(
@@ -20,10 +24,12 @@ fun NavigateableItem(
     content:@Composable ()->Unit,
 ){
     val shape = RoundedCornerShape(12.dp)
+    val interactionSource = remember { MutableInteractionSource() }
     WithContentAlpha(if (isSelected)1f else 0.75f){
         Row(
             Modifier
                 .fillMaxWidth()
+                .pressFeedback(interactionSource)
                 .clip(shape)
                 .let {
                     if (isSelected) {
@@ -37,7 +43,10 @@ fun NavigateableItem(
                             .background(myColors.selectionGradient(0.15f, 0f, selectionColor))
                     } else it
                 }
-                .clickable {
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
+                ) {
                     onClick()
                 }
                 .padding(8.dp),

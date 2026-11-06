@@ -92,9 +92,6 @@ Run the tests with `gradlew :desktop:app:test`.
 Licensed under the [Apache License 2.0](LICENSE).
 
 Absolute Download Manager is built on [AB Download Manager](https://github.com/amir1376/ab-download-manager)
-(Apache-2.0), whose download engine and application framework it extends. The browser extension adapts parts of
-[Awesome Downloader](https://github.com/Ahmadkhattak1/awesome-downloader) (MIT). The YouTube
-streaming client follows the protocol definitions of [GoogleVideo](https://github.com/LuanRT/GoogleVideo) (MIT).
-Merging runs [ffmpeg](https://ffmpeg.org) as a separate program; it is not bundled. See [NOTICE](NOTICE) and `browser-extension/NOTICE`.
+(Apache-2.0), whose download engine and application framework it extends. See [NOTICE](NOTICE).
 
 Only download content you are permitted to save.

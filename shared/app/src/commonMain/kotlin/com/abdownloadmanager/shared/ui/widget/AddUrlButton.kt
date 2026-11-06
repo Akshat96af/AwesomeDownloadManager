@@ -17,6 +17,10 @@ import androidx.compose.ui.unit.dp
 import com.abdownloadmanager.resources.Res
 import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import ir.amirab.util.compose.resources.myStringResource
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
+import com.abdownloadmanager.shared.util.ui.motion.pressFeedback
 
 @Composable
 fun AddUrlButton(
@@ -26,11 +30,17 @@ fun AddUrlButton(
     val shape = myShapes.defaultRounded
     val addUrlIcon = MyIcons.link
     val downloadIcon = MyIcons.download
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier
+            .pressFeedback(interactionSource)
             .clip(shape)
             .background(myColors.surface)
-            .clickable(onClick = onClick)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick,
+            )
             .height(32.dp)
 //            .width(120.dp)
             .padding(horizontal = 8.dp),

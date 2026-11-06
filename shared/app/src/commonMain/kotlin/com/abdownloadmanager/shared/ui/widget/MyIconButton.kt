@@ -36,6 +36,7 @@ import ir.amirab.util.compose.IconSource
 import ir.amirab.util.compose.StringSource
 import ir.amirab.util.compose.modifiers.autoMirror
 import ir.amirab.util.ifThen
+import com.abdownloadmanager.shared.util.ui.motion.pressFeedback
 
 @Composable
 fun alphaFlicker(): Float {
@@ -108,6 +109,7 @@ fun IconActionButtonWithBrush(
             Box(
                 modifier
                     .sizeIn(mySpacings.thumbSize, mySpacings.thumbSize)
+                    .pressFeedback(interactionSource, enabled)
                     .ifThen(!enabled) {
                         alpha(0.5f)
                     }

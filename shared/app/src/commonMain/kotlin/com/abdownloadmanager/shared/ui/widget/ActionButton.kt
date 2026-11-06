@@ -26,6 +26,7 @@ import com.abdownloadmanager.shared.util.ui.myColors
 import com.abdownloadmanager.shared.util.ui.theme.myShapes
 import com.abdownloadmanager.shared.util.ui.theme.mySpacings
 import com.abdownloadmanager.shared.util.ui.theme.myTextSizes
+import com.abdownloadmanager.shared.util.ui.motion.pressFeedback
 
 @Composable
 fun ActionButton(
@@ -51,6 +52,7 @@ fun ActionButton(
     Row(
         modifier
             .heightIn(mySpacings.thumbSize)
+            .pressFeedback(interactionSource, enabled)
             .border(1.dp, if (enabled) borderColor else disabledBorderColor, shape)
             .clip(shape)
             .background(if (enabled) backgroundColor else disabledBackgroundColor)
